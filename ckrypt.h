@@ -8,6 +8,8 @@ typedef unsigned long long ck_uint64_t;
 
 void ckrypt_init();
 
+void ckrypt_term();
+
 
 void ck_init()
 {
