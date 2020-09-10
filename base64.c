@@ -1,15 +1,6 @@
-#include <stdio.h>
 
+#include "intern.h"
 
-#define __bswap32(w) (((w>>24)&0xff)|((w>>8)&0xff00)|((w<<8)&0xff0000)|((w<<24)&0xff000000))
-
-inline int __big_endian(){
-	short n = 0x100; return ((char*)(&n))[0] == 1;
-}
-
-inline int __little_endian(){
-	short n = 0x1; return ((char*)(&n))[0] == 1;
-}
 
 /**
  * @return full length of number in buffer

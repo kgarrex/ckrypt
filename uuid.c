@@ -1,10 +1,5 @@
-#include "nomake.h"
 
-
-typedef __int64 uuid_node_t;
-typedef __int64 uuid_time_t;
-typedef short   uuid_seq_t;
-
+#include "intern.h"
 
 void itoha32(int n, int size, char buf[])
 {
@@ -14,7 +9,6 @@ void itoha32(int n, int size, char buf[])
 	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 	size <<= 1;
-
 	for(int i = 0; i < size; i++){
 		buf[i] = c[n & 0xf];
 		n >>= 4;
@@ -36,7 +30,6 @@ void uuid_to_string_pretty(uuid_t *uuid, char str[36])
 	str[23] = '-';
 	itoha32( *((int*)uuid->node), sizeof(int), &str[24]);
 	itoha32( *((int*)uuid->node+4), sizeof(short), &str[32]);
-
 }
 
 
@@ -62,7 +55,7 @@ uuid_node_t get_mac_address()
 	uuid_node_t mac = 0;
 
 	bufsize = sizeof(buffer);
-	error = iphlpapi.GetAdaptersInfo(adapter_info, &bufsize);
+	error = vt.GetAdaptersInfo(adapter_info, &bufsize);
 	if(error != ERROR_SUCCESS){
 		if(error != ERROR_BUFFER_OVERFLOW){
 			printf("Error: Could not get mac address\n");
@@ -73,7 +66,7 @@ uuid_node_t get_mac_address()
 			printf("Error: Could not get mac address\n");	
 			return mac;
 		}
-		error = iphlpapi.GetAdaptersInfo(adapter_info, &bufsize);
+		error = vt.GetAdaptersInfo(adapter_info, &bufsize);
 	}
 
 	adapter = adapter_info;
@@ -93,7 +86,6 @@ uuid_node_t get_mac_address()
 			break;
 		}
 	} while(adapter = adapter->Next);
-
 
 	if(adapter_info != buffer){
 		free(adapter_info);	
@@ -186,7 +178,6 @@ void uuid_create_v1(uuid_t *uuid)
 	tm  = get_timestamp();
 	seq = get_clock_sequence();
 	node = get_node();
-
 
 	uuid->time_low = (unsigned long)tm & 0xffffffff;
 	uuid->time_mid = (unsigned short)((tm >> 32) & 0xffff);

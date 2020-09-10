@@ -1,21 +1,12 @@
 
+#include "intern.h"
+
 // 0x5a827999  0 <= t <= 19
 // 0x6ed9eba1 20 <= t <= 39
 // 0x8f1bbcdc 40 <= t <= 59
 // 0xca62c1d6 60 <= t <= 79
 
-int __big_endian(){
-	short n = 0x100; return ((char*)(&n))[0] == 1;
-}
 
-int __little_endian(){
-	short n = 0x1; return ((char*)(&n))[0] == 1;
-}
-
-typedef unsigned char uint8_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long uint64_t;
-#define __bswap32(w) (((w>>24)&0xff)|((w>>8)&0xff00)|((w<<8)&0xff0000)|((w<<24)&0xff000000))
 #define rol(w, b) (((w)<<(b))|((w)>>(32-(b))))
 
 #define st E=D;D=C;C=rol(B,30);B=A;A=T
@@ -31,17 +22,17 @@ typedef unsigned long long uint64_t;
 
 char *itoh32(int n, int sz, char buf[]);
 
-void sha1(char digest[40], const char *msg, uint32_t len)
+void ck_sha1(char digest[40], const char *msg, ck_uint32_t len)
 {
 	const char *b;
 	char     buf[128] = {0};
-	uint8_t  c = 0, f = 0;
-	uint32_t  nbits = len << 3;
-	uint32_t nb;
-	uint32_t w[80];
-	uint32_t k0,k1,k2,k3;
-	uint32_t h0,h1,h2,h3,h4;
-	uint32_t A,B,C,D,E,T;
+	ck_uint8_t  c = 0, f = 0;
+	ck_uint32_t  nbits = len << 3;
+	ck_uint32_t nb;
+	ck_uint32_t w[80];
+	ck_uint32_t k0,k1,k2,k3;
+	ck_uint32_t h0,h1,h2,h3,h4;
+	ck_uint32_t A,B,C,D,E,T;
 
 	/*
 	if(!__big_endian){
@@ -196,7 +187,7 @@ int test_sha1()
 	printf("little-endian: %u\n", __little_endian());
 	printf("big-endian: %u\n", __big_endian());
 
-	sha1(buf, str, strlen(str));	
+	ck_sha1(buf, str, strlen(str));	
 
 	printf("sha1 target: %.*s\n", 40, digest);
 	printf("sha1 result: %.*s\n", 40, buf);
