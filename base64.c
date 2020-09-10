@@ -58,7 +58,8 @@ unsigned char base)
 	return i;
 }
 
-unsigned base64_encode_compute(const char *in, unsigned insize, char out[], unsigned outsize, const char t[64])
+static unsigned
+base64_encode_compute(const char *in, unsigned insize, char out[], unsigned outsize, const char t[64])
 {
 	char *ptr = out;
 	unsigned x, i, r, l;
@@ -146,7 +147,8 @@ unsigned base64url_encode(const char *in, unsigned insize, char out[], unsigned 
 
 #define B64_CALC_SIZE(n) (n+(4-(n%4)))
 
-unsigned base64_decode_compute(const char *in, unsigned insize, char out[], unsigned outsize, const char t[128])
+static unsigned
+base64_decode_compute(const char *in, unsigned insize, char out[], unsigned outsize, const char t[128])
 {
 char *ptr = out;
 unsigned x, i, r, l;
