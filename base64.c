@@ -49,6 +49,73 @@ unsigned char base)
 	return i;
 }
 
+
+unsigned ckrypt_base64_encode_start(ckrypt_ctx *ctx,
+	char out[], unsigned outsz, const char t[64])
+{
+	ctx->table = t;
+	ctx->pout  = out;
+	ctx->outsz = outsz;
+}
+
+unsigned ckrypt_base64_encode_input(ckrypt_ctx *ctx, const char *in, unsigned nbits)
+{
+	char *ptr = ctx->pout;
+	const char *t = ctx->table;
+	unsigned x, i, r;
+
+	i = nbits/0x18; r = nbits%0x18;
+	l = (i*4)+(r?4:0); //calculate num bytes needed
+
+	if(__little_endian()){
+		while(i--){
+			x = *(int*)in;
+			x = __bswap32(x);
+			*ptr++ = t[>>26];
+			*ptr++ = t[(x>>20)&0x3f];
+			*ptr++ = t[(x>>14)&0x3f];
+			*ptr++ = t[(x>>8)&0x3f];
+			in+=3;
+		}
+
+		if(r == 2){
+			x = *(int*)in;	
+			x = __bswap32(x) & 0xffff0000;
+			*ptr++ = t[x>>26];
+			*ptr++ = t[(x>>20)&0x3f];
+			*ptr++ = t[(x>>14)&0x3f];
+			*ptr++ = '=';
+		}
+
+
+	} else {
+
+	}
+}
+
+unsigned ckrypt_base64_encode_end(ckrypt_ctx *ctx)
+{
+	char *ptr = ctx->pout;
+
+	if(ctx->r == 2){
+		x = *(int*)in;	
+		x = __bswap32(x) & 0xffff0000;
+		*ptr++ = t[x>>26];
+		*ptr++ = t[(x>>20)&0x3f];
+		*ptr++ = t[(x>>14)&0x3f];
+		*ptr++ = '=';
+	}
+	else {
+		x = *(int*)in;
+		x = __bswap32(x) & 0xff000000;	
+		*ptr++ = t[x>>26];
+		*ptr++ = t[(x>>20)&0x3f];
+		*ptr++ = '=';
+		*ptr++ = '=';
+	}
+	
+}
+
 static unsigned
 base64_encode_compute(const char *in, unsigned insize, char out[], unsigned outsize, const char t[64])
 {
@@ -217,7 +284,7 @@ unsigned x, i, r, l;
 	return l;
 }
 
-unsigned base64_decode(const char *in, unsigned insize, char out[], unsigned outsize)
+unsigned ckrypt_base64_decode(const char *in, unsigned insize, char out[], unsigned outsize)
 {
 	const char table[128] =
 	{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -241,7 +308,7 @@ unsigned base64url_decode(const char *in, unsigned insize, char out[], unsigned 
 	return base64_decode_compute(in, insize, out, outsize, 0);
 }
 
-void test1()
+void ckrypt_base64_test1()
 {
 	char buf[256];
 	int n;
@@ -264,7 +331,7 @@ void test1()
 
 }
 
-void test2()
+void ckrypt_base64_test2()
 {
 	char buf[256];
 	int n;
@@ -273,7 +340,7 @@ void test2()
 	const char *target = "The quick brown fox jumps over the lazy dog";
 
 
-	n = base64_decode(str, -1, buf, 256);
+	n = ckrypt_base64_decode(str, -1, buf, 256);
 
 	if(n != 43) {
 		printf("Test 2 Error: Wrong size\n");	
@@ -288,7 +355,7 @@ void test2()
 	printf("Test 2 passed!\n");
 }
 
-void test3()
+void ckrypt_bas64_test3()
 {
 	char buf[256];
 	int n;
@@ -299,7 +366,7 @@ void test3()
 	n = base64_encode(str, 40, buf, 256);
 	printf("base64: %.*s\n", n, buf);
 
-	n = base64_decode(buf, n, buf, 256);
+	n = ckrypt_base64_decode(buf, n, buf, 256);
 	printf("unbase64: %.*s\n", n, buf);
 
 }

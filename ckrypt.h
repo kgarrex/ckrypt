@@ -5,6 +5,26 @@
 #include <windows.h>
 #include <iphlpapi.h>
 
+// max bytes in a 64 bit number
+#define CKRYPT_MAX_BYTES 0x1fffffffffffffff
+
+#define EXCEEDS_MAX_BYTES(h,l) (l<0xffffffff?0:((h<=0x1fffffff)?0:1))
+
+
+typedef struct {
+	union {
+
+	struct {
+		char *pout;
+		unsigned outsz;	
+		const char *table;
+		unsigned r;
+	} base64;
+		
+	};
+} ckrypt_ctx;
+
+
 typedef unsigned int ck_uint32_t;
 typedef unsigned long long ck_uint64_t;
 
