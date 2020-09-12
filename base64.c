@@ -1,102 +1,70 @@
-
 #include "intern.h"
 
 
-/**
- * @return full length of number in buffer
-**/
-int __cdecl itoa_zt (int n, char* buf,
-unsigned char bufsize, unsigned char padding,
-unsigned char base)
-{
-//check that the base is valid
-	char *ptr = buf,
-	 *ptr1 = buf,
-	 tmp_char,
-	 _buf[16];
-	int nn, i = 0;
-
-	if(!buf) return 0;
-	if(base < 2 || base > 36) return 0;
-
-	do {
-	nn = n;
-	n /= base;
-
-	*ptr++ = "ZYXWVUTSRQPONMLKJIHGFEDCBA9876543210" //71 chars
-		 "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		[35 + (nn-n*base)];
-		i++;
-	} while(n);
-
-	while(i < padding) {
-		*ptr++ = '0';
-		i++;
-	}
-
-	//Apply negative sign
-	if(nn < 0) {
-		*ptr++ = '-'; /* todo: check size left */
-		i++;
-	}
-	*ptr-- = '\0';
-
-	while(ptr1 < ptr) {
-		tmp_char = *ptr;
-		*ptr-- = *ptr1;
-		*ptr1++ = tmp_char;
-	}
-	return i;
-}
-
-
-unsigned ckrypt_base64_encode_start(ckrypt_ctx *ctx,
+unsigned ckrypt_base64_encode_start(ckrypt_base64_ctx *ctx,
 	char out[], unsigned outsz, const char t[64])
 {
 	ctx->table = t;
 	ctx->pout  = out;
 	ctx->outsz = outsz;
+	ctx->ncache = 0;
+	ctx->iter  = 0;
+	return 1;
 }
 
-unsigned ckrypt_base64_encode_input(ckrypt_ctx *ctx, const char *in, unsigned nbits)
+unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
+	const char *in, unsigned nbits)
 {
 	char *ptr = ctx->pout;
 	const char *t = ctx->table;
-	unsigned x, i, r;
+	unsigned x, i, r, l;
 
-	i = nbits/0x18; r = nbits%0x18;
+	i = nbits/24; r = nbits%24;
 	l = (i*4)+(r?4:0); //calculate num bytes needed
+
+	if(ctx->outsz < l) return 0;
 
 	if(__little_endian()){
 		while(i--){
 			x = *(int*)in;
-			x = __bswap32(x);
-			*ptr++ = t[>>26];
+			x = (__bswap32(x) & 0xffffff00) >> ;
+			*ptr++ = t[x>>26];
 			*ptr++ = t[(x>>20)&0x3f];
 			*ptr++ = t[(x>>14)&0x3f];
 			*ptr++ = t[(x>>8)&0x3f];
 			in+=3;
 		}
-
-		if(r == 2){
-			x = *(int*)in;	
-			x = __bswap32(x) & 0xffff0000;
+	}
+	else {
+		while(i--){
+			x = *(int*)in;
 			*ptr++ = t[x>>26];
 			*ptr++ = t[(x>>20)&0x3f];
 			*ptr++ = t[(x>>14)&0x3f];
-			*ptr++ = '=';
+			*ptr++ = t[(x>>8)&0x3f];
+			in+=3;
 		}
-
-
-	} else {
-
 	}
+	//*ptr++ = t[x>>j];
+
+	if(r > 18){
+	
+	}
+	else if(r > 12){
+	
+	}
+
+	ctx->iter++;
+	return 1;
 }
 
-unsigned ckrypt_base64_encode_end(ckrypt_ctx *ctx)
+unsigned ckrypt_base64_encode_end(ckrypt_base64_ctx *ctx)
 {
 	char *ptr = ctx->pout;
 
+	if(!ctx->ncache) return 0;
+
+	/*
 	if(ctx->r == 2){
 		x = *(int*)in;	
 		x = __bswap32(x) & 0xffff0000;
@@ -113,7 +81,9 @@ unsigned ckrypt_base64_encode_end(ckrypt_ctx *ctx)
 		*ptr++ = '=';
 		*ptr++ = '=';
 	}
+	*/
 	
+	return 1;
 }
 
 static unsigned
@@ -158,6 +128,7 @@ base64_encode_compute(const char *in, unsigned insize, char out[], unsigned outs
 		}
 	}
 	else {
+
 		while(i--){
 			x = *(int*)in;
 			*ptr++ = t[x>>26];

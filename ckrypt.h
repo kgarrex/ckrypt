@@ -12,17 +12,23 @@
 
 
 typedef struct {
+	char *pout;
+	unsigned outsz;	
+	const char *table;
+	int cache;
+	char ncache;
+	int iter;
+	int error;
+} ckrypt_base64_ctx;
+		
+
+/*
+typedef struct {
 	union {
 
-	struct {
-		char *pout;
-		unsigned outsz;	
-		const char *table;
-		unsigned r;
-	} base64;
-		
 	};
 } ckrypt_ctx;
+*/
 
 
 typedef unsigned int ck_uint32_t;
