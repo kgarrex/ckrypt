@@ -22,8 +22,24 @@ inline int __little_endian(){
 	short n = 0x1; return ((char*)(&n))[0] == 1;
 }
 
-inline unsigned __bswap32(n){
+inline unsigned __bswap32(unsigned int n)
+{
 	return ((n>>24)&0xff)|((n>>8)&0xff00)|((n<<8)&0xff0000)|((n<<24)&0xff000000);
+}
+
+inline unsigned rol32(unsigned int d, unsigned char n)
+{
+	return (d<<n)|(d>>(32-n));
+}
+
+inline unsigned ch32(unsigned x, unsigned y, unsigned z)
+{
+	return (x&y)^((~x)&z);
+}
+
+inline unsigned maj32(unsigned x, unsigned y, unsigned z)
+{
+	return (x&y)^(x&z)^(y&z);
 }
 
 #endif

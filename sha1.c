@@ -7,16 +7,16 @@
 // 0xca62c1d6 60 <= t <= 79
 
 
-#define rol(w, b) (((w)<<(b))|((w)>>(32-(b))))
+//#define rol32(w, b) (((w)<<(b))|((w)>>(32-(b))))
 
-#define st E=D;D=C;C=rol(B,30);B=A;A=T
-#define r1(i) T=rol(A,5)+((B&C)|((~B)&D))+E+w[i]+k0;st
-#define r2(i) T=rol(A,5)+(B^C^D)+E+w[i]+k1;st
-#define r3(i) T=rol(A,5)+((B&C)|(B&D)|(C&D))+E+w[i]+k2;st
-#define r4(i) T=rol(A,5)+(B^C^D)+E+w[i]+k3;st
+#define st E=D;D=C;C=rol32(B,30);B=A;A=T
+#define r1(i) T=rol32(A,5)+((B&C)|((~B)&D))+E+w[i]+k0;st
+#define r2(i) T=rol32(A,5)+(B^C^D)+E+w[i]+k1;st
+#define r3(i) T=rol32(A,5)+((B&C)|(B&D)|(C&D))+E+w[i]+k2;st
+#define r4(i) T=rol32(A,5)+(B^C^D)+E+w[i]+k3;st
 
 #define a(i) w[i]=(b[i<<2]<<24)|(b[(i<<2)+1]<<16)|(b[(i<<2)+2]<<8)|(b[(i<<2)+3])
-#define b(i) w[i]=rol((w[i-3]^w[i-8]^w[i-14]^w[i-16]),1)
+#define b(i) w[i]=rol32((w[i-3]^w[i-8]^w[i-14]^w[i-16]),1)
 
 #define f(b,w,i) b[i]=h[w&0xf];w>>=4; 
 

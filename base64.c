@@ -18,6 +18,12 @@ unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
 	char *ptr = ctx->pout;
 	const char *t = ctx->table;
 	unsigned x, i, r, l;
+	unsigned cache;
+
+	if(ctx->ncache) {
+		cache = ctx->cache;
+		ncache = ctx->ncache;
+	}
 
 	i = nbits/24; r = nbits%24;
 	l = (i*4)+(r?4:0); //calculate num bytes needed
@@ -27,7 +33,7 @@ unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
 	if(__little_endian()){
 		while(i--){
 			x = *(int*)in;
-			x = (__bswap32(x) & 0xffffff00) >> ;
+			x = (__bswap32(x) & 0xffffff00);
 			*ptr++ = t[x>>26];
 			*ptr++ = t[(x>>20)&0x3f];
 			*ptr++ = t[(x>>14)&0x3f];
