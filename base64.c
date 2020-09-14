@@ -12,13 +12,42 @@ unsigned ckrypt_base64_encode_start(ckrypt_base64_ctx *ctx,
 	return 1;
 }
 
+void base64_be_loop(ckrypt_base64_ctx *ctx, unsigned i)
+{
+	while(i--){
+		x = *(int*)in;
+		x &= 0xffffff00 >> ncache;
+		*ptr++ = t[x>>26];
+		*ptr++ = t[(x>>20)&0x3f];
+		*ptr++ = t[(x>>14)&0x3f];
+		*ptr++ = t[(x>>8)&0x3f];
+		in+=3;
+	}
+}
+
+void base64_le_loop(ckrypt_base64_ctx *ctx, unsigned i)
+{
+	while(i--){
+		x = *(int*)in;
+		x = __bswap32(x) & 0xffffff00;
+		y = x << (24-ncache); //new bits to cache
+		x = cache | (x >> ncache);
+		*ptr++ = t[x>>26];
+		*ptr++ = t[(x>>20)&0x3f];
+		*ptr++ = t[(x>>14)&0x3f];
+		*ptr++ = t[(x>>8)&0x3f];
+		in+=3;
+	}
+
+}
+
 unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
 	const char *in, unsigned nbits)
 {
 	char *ptr = ctx->pout;
 	const char *t = ctx->table;
-	unsigned x, i, r, l;
-	unsigned cache;
+	unsigned x, y, i, r, l;
+	unsigned cache, char ncache;
 
 	if(ctx->ncache) {
 		cache = ctx->cache;
@@ -31,9 +60,12 @@ unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
 	if(ctx->outsz < l) return 0;
 
 	if(__little_endian()){
+
 		while(i--){
 			x = *(int*)in;
-			x = (__bswap32(x) & 0xffffff00);
+			x = __bswap32(x) & 0xffffff00;
+			y = x << (24-ncache); //new bits to cache
+			x = cache | (x >> ncache);
 			*ptr++ = t[x>>26];
 			*ptr++ = t[(x>>20)&0x3f];
 			*ptr++ = t[(x>>14)&0x3f];
@@ -44,6 +76,7 @@ unsigned ckrypt_base64_encode_input(ckrypt_base64_ctx *ctx,
 	else {
 		while(i--){
 			x = *(int*)in;
+			x &= 0xffffff00 >> ncache;
 			*ptr++ = t[x>>26];
 			*ptr++ = t[(x>>20)&0x3f];
 			*ptr++ = t[(x>>14)&0x3f];
